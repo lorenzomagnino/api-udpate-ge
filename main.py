@@ -138,28 +138,58 @@ def get_options(
 # getTimeseriesPrice, getTsgroupPrice
 
 # --- Your data processing functions (get_first_available, etc.) go here ---
-# These functions do not need modification if the inputs are checked
 def get_label_market_price(
     label: str, marketprice_name: str, maturity_type: str, bearerToken: str, vdate=None
 ) -> pd.DataFrame:
     df1 = get_market_price(marketprice_name, bearerToken)
-    # CRITICAL: Check if the dataframe is None before processing
     if df1 is None or df1.empty:
         logging.warning(f"No data received for {marketprice_name}, skipping.")
         return None
     
-    # Your existing processing logic...
+    required_cols = ['trade_date', 'maturity_date']
+    if not all(col in df1.columns for col in required_cols):
+        logging.warning(f"Data for {marketprice_name} is missing required columns. Skipping.")
+        return None
+
     try:
+        # This is the original logic from your script
         df1["trade_date"] = pd.to_datetime(df1["trade_date"])
         df1["maturity_date"] = pd.to_datetime(df1["maturity_date"])
-        # ... rest of your logic
+        if vdate:
+            df1["vintage_date"] = pd.to_datetime(df1["vintage_date"])
+
+        if maturity_type == "FM":
+            df_filtered = (
+                df1.groupby("trade_date").apply(lambda x: x.dropna(subset=["open", "high", "low"]).iloc[0] if not x.dropna(subset=["open", "high", "low"]).empty else x.iloc[0]).reset_index(drop=True)
+            )
+        elif maturity_type == "FY":
+            if vdate:
+                vdate_year = pd.to_datetime(vdate).year
+                df_filtered = df1[
+                    (df1["maturity_date"].dt.month == 12)
+                    & (df1["maturity_date"].dt.year == vdate_year)
+                ]
+            else:
+                df_filtered = df1[
+                    (df1["maturity_date"].dt.month == 12)
+                    & (df1["maturity_date"].dt.year == df1["trade_date"].dt.year)
+                ]
+        else:
+            df_filtered = pd.DataFrame()
+
+        if vdate:
+            df_filtered = df_filtered[df_filtered["vintage_date"] == pd.to_datetime(vdate)]
+            df_selected = df_filtered[["trade_date", "settlement", "open_interest", "volume"]].copy()
+            df_selected.rename(columns={"trade_date": "Date", "settlement": f"{label}_settl", "open_interest": f"{label}_open_int", "volume": f"{label}_volume"}, inplace=True)
+        else:
+            df_selected = df_filtered[["trade_date", "open", "low", "high", "settlement", "open_interest", "volume"]].copy()
+            df_selected.rename(columns={"trade_date": "Date", "settlement": f"{label}_settl", "open": f"{label}_open", "low": f"{label}_low", "high": f"{label}_high", "open_interest": f"{label}_open_int", "volume": f"{label}_volume"}, inplace=True)
+        
+        return df_selected
+
     except Exception as e:
         logging.error(f"Error processing dataframe for {label}: {e}")
         return None
-    
-    # Return df_selected at the end
-    # This is a placeholder, you need to return your actual processed dataframe
-    return df1 
 
 # --- (Add similar checks for None in all your other get_* functions) ---
 
@@ -175,8 +205,7 @@ def retrieve_all_data(bearerToken: str) -> List[pd.DataFrame]:
         # ... add all other dataframe variables here
     ]
     
-    # IMPORTANT: Filter out any None values from failed API calls
-    valid_dataframes = [df for df in dataframes if df is not None]
+    valid_dataframes = [df for df in dataframes if df is not None and not df.empty]
     
     if not valid_dataframes:
         logging.warning("No valid dataframes were retrieved. No data to merge.")
@@ -203,13 +232,18 @@ def create_base_df() -> pd.DataFrame:
 def update_dataset(new_data: pd.DataFrame, file_path: str):
     """Update the existing dataset with new data in GCS."""
     try:
-        existing_dataset = pd.read_csv(file_path)
-        existing_dataset["Date"] = pd.to_datetime(existing_dataset["Date"])
+        try:
+            existing_dataset = pd.read_csv(file_path)
+        except (FileNotFoundError, EmptyDataError):
+            logging.warning(f"Could not read existing main dataset at {file_path}. Creating a new one.")
+            existing_dataset = pd.DataFrame()
+
+        if not existing_dataset.empty:
+            existing_dataset["Date"] = pd.to_datetime(existing_dataset["Date"])
+        
         new_data["Date"] = pd.to_datetime(new_data["Date"])
 
-        updated_dataset = pd.concat(
-            [existing_dataset.set_index("Date"), new_data.set_index("Date")]
-        ).reset_index()
+        updated_dataset = pd.concat([existing_dataset, new_data])
         updated_dataset = (
             updated_dataset.drop_duplicates(subset="Date", keep="last")
             .sort_values(by="Date")
@@ -217,15 +251,14 @@ def update_dataset(new_data: pd.DataFrame, file_path: str):
         )
 
         updated_dataset.to_csv(file_path, index=False)
-        logging.info(f"The dataset is updated and has been saved in {file_path}")
+        logging.info(f"The main dataset is updated and has been saved in {file_path}")
     except Exception as e:
-        logging.error(f"Failed to update dataset at {file_path}: {e}")
+        logging.error(f"Failed to update main dataset at {file_path}: {e}")
         raise
 
 def filter_options(mode: str, bearerToken: str) -> pd.DataFrame:
-    """Fetches the last 3 days of options data to handle gaps like weekends."""
-    # Set fromTradeDate to 3 days ago to account for weekends/holidays
-    from_date = (datetime.today() - timedelta(days=3)).strftime("%Y-%m-%d")
+    """Fetches the last 5 days of options data to handle gaps like weekends."""
+    from_date = (datetime.today() - timedelta(days=5)).strftime("%Y-%m-%d")
 
     if mode == "put":
         df = get_options(OPTIONS["put"], bearerToken, fromTradeDate=from_date)
@@ -234,23 +267,19 @@ def filter_options(mode: str, bearerToken: str) -> pd.DataFrame:
     else:
         return None
         
-    if df is None: 
+    if df is None or df.empty: 
+        logging.warning(f"No options data received for mode: {mode}")
+        return None
+    
+    required_cols = ['trade_date', 'maturity_date', 'strike_price', 'settlement', 'volume', 'open_interest', 'option_volatility']
+    if not all(col in df.columns for col in required_cols):
+        logging.warning(f"Options data for mode '{mode}' is missing required columns. Skipping.")
         return None
 
     df["trade_date"] = pd.to_datetime(df["trade_date"])
     df["maturity_date"] = pd.to_datetime(df["maturity_date"])
 
-    df_selected = df[
-        [
-            "trade_date",
-            "maturity_date",
-            "strike_price",
-            "settlement",
-            "volume",
-            "open_interest",
-            "option_volatility",
-        ]
-    ].copy()
+    df_selected = df[required_cols].copy()
     return df_selected
 
 def update_option_dataset(new_data: pd.DataFrame, file_path: str):
@@ -262,7 +291,7 @@ def update_option_dataset(new_data: pd.DataFrame, file_path: str):
         try:
             existing_dataset = pd.read_csv(file_path)
         except (FileNotFoundError, EmptyDataError):
-            logging.warning(f"Could not read existing dataset at {file_path}. Creating a new one.")
+            logging.warning(f"Could not read existing option dataset at {file_path}. Creating a new one.")
             existing_dataset = pd.DataFrame()
 
         if not existing_dataset.empty:
@@ -272,7 +301,6 @@ def update_option_dataset(new_data: pd.DataFrame, file_path: str):
 
         updated_dataset = pd.concat([existing_dataset, new_data])
         
-        # Define unique keys for options data
         unique_keys = ["trade_date", "maturity_date", "strike_price"]
         updated_dataset = updated_dataset.drop_duplicates(
             subset=unique_keys, keep="last"
@@ -314,9 +342,7 @@ def main_handler():
         logging.info("The datasets have been updated successfully.")
         return "Update successful", 200
     except Exception as e:
-        # Log any unexpected exception during the process
         logging.critical(f"An unhandled error occurred: {e}", exc_info=True)
-        # Return a 500 error to signal failure to Cloud Scheduler
         return "An internal error occurred", 500
 
 if __name__ == "__main__":
