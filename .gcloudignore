@@ -2,7 +2,7 @@
 # using gcloud. It follows the same syntax as .gitignore
 
 .gcloudignore
-# .git/
+.git/
 .gitignore
 __pycache__/
 *.pyc

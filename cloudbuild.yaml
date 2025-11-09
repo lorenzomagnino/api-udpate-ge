@@ -1,38 +1,13 @@
 steps:
   # Build the container image
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['build', '-t', 'gcr.io/$PROJECT_ID/veyt-data-retrieval:$SHORT_SHA', '-t', 'gcr.io/$PROJECT_ID/veyt-data-retrieval:latest', '.']
+    args: ['build', '-t', 'gcr.io/$PROJECT_ID/veyt-data-retrieval:latest', '.']
   
   # Push the container image to Container Registry
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['push', 'gcr.io/$PROJECT_ID/veyt-data-retrieval:$SHORT_SHA']
-  
-  - name: 'gcr.io/cloud-builders/docker'
     args: ['push', 'gcr.io/$PROJECT_ID/veyt-data-retrieval:latest']
-  
-  # Deploy container image to Cloud Run
-  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
-    entrypoint: gcloud
-    args:
-      - 'run'
-      - 'deploy'
-      - 'veyt-data-retrieval'
-      - '--image'
-      - 'gcr.io/$PROJECT_ID/veyt-data-retrieval:$SHORT_SHA'
-      - '--region'
-      - 'us-central1'
-      - '--platform'
-      - 'managed'
-      - '--allow-unauthenticated'
-      - '--memory'
-      - '2Gi'
-      - '--timeout'
-      - '3600'
-      - '--max-instances'
-      - '1'
 
 images:
-  - 'gcr.io/$PROJECT_ID/veyt-data-retrieval:$SHORT_SHA'
   - 'gcr.io/$PROJECT_ID/veyt-data-retrieval:latest'
 
 options:
@@ -40,4 +15,3 @@ options:
   logging: CLOUD_LOGGING_ONLY
 
 timeout: '1200s'
-
