@@ -1,23 +1,21 @@
 import pandas as pd
+from veyt.veyt_client import VeytAPIClient, save_to_csv
+from veyt.config import FUTURES, COMMODITIES, VOLATILITY, DEFAULT_FROM_DATE, DEFAULT_UNTIL_DATE, DEFAULT_OUTPUT_DIR
 import logging
-from datetime import datetime
-from veyt_client import VeytAPIClient, save_to_csv
-from config import FUTURES, COMMODITIES, VOLATILITY, DEFAULT_FROM_DATE, DEFAULT_UNTIL_DATE, DEFAULT_OUTPUT_DIR
-
 
 def save_eua_futures_data(client, from_date=DEFAULT_FROM_DATE, until_date=DEFAULT_UNTIL_DATE, output_dir=DEFAULT_OUTPUT_DIR):
     """Process EUA futures data with front and benchmark contract extraction"""
-    print(f"Retrieving EUA futures data from {from_date} to {until_date}...")
+    logging.debug(f"Retrieving EUA futures data from {from_date} to {until_date}...")
     
     eua_df = client.get_market_price(FUTURES['eua'], from_trade_date=from_date, until_trade_date=until_date)
     
     if eua_df is None or eua_df.empty:
-        print("No EUA data retrieved")
+        logging.debug("No EUA data retrieved")
         return None, None
     
-    print(f"Retrieved {len(eua_df)} raw EUA records")
+    logging.debug(f"Retrieved {len(eua_df)} raw EUA records")
     
-    print("Saving raw EUA futures data...")
+    logging.debug("Saving raw EUA futures data...")
     save_to_csv(eua_df, "eua_futures_raw_data.csv", output_dir)
     
     eua_df['trade_date_dt'] = pd.to_datetime(eua_df['trade_date'])
@@ -64,7 +62,7 @@ def save_eua_futures_data(client, from_date=DEFAULT_FROM_DATE, until_date=DEFAUL
                 (trade_data['maturity_month'] == 12)
             ]
             if not benchmark_contracts.empty:
-                print(f"Note: Using next year's December contract for trade date {trade_date} (current year December not available)")
+                logging.debug(f"Note: Using next year's December contract for trade date {trade_date} (current year December not available)")
         
         row = {'trade_date': trade_date}
         
@@ -115,16 +113,16 @@ def save_eua_futures_data(client, from_date=DEFAULT_FROM_DATE, until_date=DEFAUL
                 'EUA_benchmark_open_interest': None,
                 'EUA_benchmark_modified': None
             })
-            print(f"Warning: No December benchmark contract found for trade date {trade_date}")
+            logging.debug(f"Warning: No December benchmark contract found for trade date {trade_date}")
         
         result_rows.append(row)
     
     result_df = pd.DataFrame(result_rows)
     result_df = result_df.sort_values('trade_date').reset_index(drop=True)
     
-    print(f"Processed {len(result_df)} unique trade dates")
-    print(f"Found EUA_front contracts for {result_df['EUA_front_open'].notna().sum()} dates")
-    print(f"Found EUA_benchmark contracts for {result_df['EUA_benchmark_open'].notna().sum()} dates")
+    logging.debug(f"Processed {len(result_df)} unique trade dates")
+    logging.debug(f"Found EUA_front contracts for {result_df['EUA_front_open'].notna().sum()} dates")
+    logging.debug(f"Found EUA_benchmark contracts for {result_df['EUA_benchmark_open'].notna().sum()} dates")
     
     result_df = result_df.set_index('trade_date').sort_index()
     result_df = result_df.fillna(method='ffill')
@@ -136,50 +134,50 @@ def save_eua_futures_data(client, from_date=DEFAULT_FROM_DATE, until_date=DEFAUL
     
     save_to_csv(result_df, "eua_futures_front_and_benchmark.csv", output_dir)
     
-    print(f"Saved raw EUA data to: eua_futures_raw_data.csv")
-    print(f"Saved processed EUA data to: eua_futures_front_and_benchmark.csv")
+    logging.debug(f"Saved raw EUA data to: eua_futures_raw_data.csv")
+    logging.debug(f"Saved processed EUA data to: eua_futures_front_and_benchmark.csv")
     
     return eua_df, result_df
 
 
 def get_other_futures_data(client, from_date=DEFAULT_FROM_DATE, until_date=DEFAULT_UNTIL_DATE, output_dir=DEFAULT_OUTPUT_DIR):
     """Get data for other futures (UKA, RGGI, WCI)"""
-    print("\n=== Retrieving Other Futures Data ===")
+    logging.debug("\n=== Retrieving Other Futures Data ===")
     
     for name, curve_id in FUTURES.items():
         if name == 'eua':
             continue
             
-        print(f"\nGetting {name.upper()} futures data...")
+        logging.debug(f"\nGetting {name.upper()} futures data...")
         df = client.get_market_price(curve_id, from_trade_date=from_date, until_trade_date=until_date)
         
         if df is not None and not df.empty:
-            print(f"Retrieved {len(df)} {name.upper()} records")
-            print(f"Columns: {list(df.columns)}")
-            print(f"Date range: {df['trade_date'].min()} to {df['trade_date'].max()}")
-            print("Sample data:")
-            print(df.head(3))
+            logging.debug(f"Retrieved {len(df)} {name.upper()} records")
+            logging.debug(f"Columns: {list(df.columns)}")
+            logging.debug(f"Date range: {df['trade_date'].min()} to {df['trade_date'].max()}")
+            logging.debug("Sample data:")
+            logging.debug(df.head(3))
             
             filename = f"{name}_futures_raw_data.csv"
             save_to_csv(df, filename, output_dir)
         else:
-            print(f"No {name.upper()} data retrieved")
+            logging.debug(f"No {name.upper()} data retrieved")
 
 
 def get_commodities_data(client, from_date=DEFAULT_FROM_DATE, until_date=DEFAULT_UNTIL_DATE, output_dir=DEFAULT_OUTPUT_DIR):
     """Get data for commodities with front month processing"""
-    print("\n=== Retrieving Commodities Data ===")
+    logging.debug("\n=== Retrieving Commodities Data ===")
     
     for name, curve_id in COMMODITIES.items():
-        print(f"\nGetting {name} data...")
+        logging.debug(f"\nGetting {name} data...")
         df = client.get_market_price(curve_id, from_trade_date=from_date, until_trade_date=until_date)
         
         if df is not None and not df.empty:
-            print(f"Retrieved {len(df)} {name} records")
-            print(f"Columns: {list(df.columns)}")
-            print(f"Date range: {df['trade_date'].min()} to {df['trade_date'].max()}")
-            print("Sample data:")
-            print(df.head(3))
+            logging.debug(f"Retrieved {len(df)} {name} records")
+            logging.debug(f"Columns: {list(df.columns)}")
+            logging.debug(f"Date range: {df['trade_date'].min()} to {df['trade_date'].max()}")
+            logging.debug("Sample data:")
+            logging.debug(df.head(3))
             
             filename = f"{name.lower().replace(' ', '_')}_raw_data.csv"
             save_to_csv(df, filename, output_dir)
@@ -189,7 +187,7 @@ def get_commodities_data(client, from_date=DEFAULT_FROM_DATE, until_date=DEFAULT
                 processed_filename = f"{name.lower().replace(' ', '_')}_front_month.csv"
                 save_to_csv(processed_df, processed_filename, output_dir)
         else:
-            print(f"No {name} data retrieved")
+            logging.debug(f"No {name} data retrieved")
 
 
 def process_commodity_front(df, name):
@@ -360,18 +358,18 @@ def add_contract_data(row, contracts, prefix):
 
 def get_volatility_data(client, from_date=DEFAULT_FROM_DATE, until_date=DEFAULT_UNTIL_DATE, output_dir=DEFAULT_OUTPUT_DIR):
     """Get volatility data with benchmark processing"""
-    print("\n=== Retrieving Volatility Data ===")
+    logging.debug("\n=== Retrieving Volatility Data ===")
     
     for name, curve_id in VOLATILITY.items():
-        print(f"\nGetting {name} volatility data...")
+        logging.debug(f"\nGetting {name} volatility data...")
         df = client.get_market_price(curve_id, from_trade_date=from_date, until_trade_date=until_date)
         
         if df is not None and not df.empty:
-            print(f"Retrieved {len(df)} {name} volatility records")
-            print(f"Columns: {list(df.columns)}")
-            print(f"Date range: {df['trade_date'].min()} to {df['trade_date'].max()}")
-            print("Sample data:")
-            print(df.head(3))
+            logging.debug(f"Retrieved {len(df)} {name} volatility records")
+            logging.debug(f"Columns: {list(df.columns)}")
+            logging.debug(f"Date range: {df['trade_date'].min()} to {df['trade_date'].max()}")
+            logging.debug("Sample data:")
+            logging.debug(df.head(3))
             
             filename = f"volatility_{name}_raw_data.csv"
             save_to_csv(df, filename, output_dir)
@@ -381,7 +379,7 @@ def get_volatility_data(client, from_date=DEFAULT_FROM_DATE, until_date=DEFAULT_
                 processed_filename = f"volatility_{name}_benchmark.csv"
                 save_to_csv(processed_df, processed_filename, output_dir)
         else:
-            print(f"No {name} volatility data retrieved")
+            logging.debug(f"No {name} volatility data retrieved")
 
 
 def process_volatility_benchmark(df, name):
@@ -455,7 +453,7 @@ def process_all_futures_and_commodities(from_date=DEFAULT_FROM_DATE, until_date=
     """Main function to process all futures and commodities data"""
     client = VeytAPIClient()
     
-    print("Starting futures and commodities data retrieval...")
+    logging.info("Starting futures and commodities data retrieval...")
     
     eua_raw, eua_processed = save_eua_futures_data(client, from_date, until_date, output_dir)
     
@@ -465,7 +463,7 @@ def process_all_futures_and_commodities(from_date=DEFAULT_FROM_DATE, until_date=
     
     get_volatility_data(client, from_date, until_date, output_dir)
     
-    print("\n=== Futures and Commodities Data Retrieval Complete ===")
+    logging.info("\n=== Futures and Commodities Data Retrieval Complete ===")
     
     return eua_raw, eua_processed
 

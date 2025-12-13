@@ -1,8 +1,7 @@
 import pandas as pd
-import numpy as np
-from veyt_client import VeytAPIClient, save_to_csv
-from config import COT_ICE, COT_EEX, COT_TTF, DEFAULT_FROM_DATE, DEFAULT_UNTIL_DATE, DEFAULT_OUTPUT_DIR
-
+from veyt.veyt_client import VeytAPIClient, save_to_csv
+from veyt.config import COT_ICE, COT_EEX, COT_TTF, DEFAULT_FROM_DATE, DEFAULT_UNTIL_DATE, DEFAULT_OUTPUT_DIR
+import logging
 
 def standardize_date_column(df):
     """Standardize date column to 'Date'"""
@@ -20,7 +19,7 @@ def standardize_date_column(df):
 
 def merge_auction_data(auction_data_dict, output_dir=DEFAULT_OUTPUT_DIR):
     """Merge auction data from different countries (only one auction per day)"""
-    print("\n=== Merging Auction Data ===")
+    logging.debug("\n=== Merging Auction Data ===")
     
     auction_dfs = []
     for country, df in auction_data_dict.items():
@@ -30,14 +29,14 @@ def merge_auction_data(auction_data_dict, output_dir=DEFAULT_OUTPUT_DIR):
             auction_dfs.append(df)
     
     if not auction_dfs:
-        print("No auction data to merge")
+        logging.debug("No auction data to merge")
         return None
     
     merged_auctions = pd.concat(auction_dfs, ignore_index=True)
     merged_auctions = merged_auctions.sort_values('Date')
     
-    print(f"Merged auction data: {len(merged_auctions)} total records")
-    print(f"Date range: {merged_auctions['Date'].min()} to {merged_auctions['Date'].max()}")
+    logging.debug(f"Merged auction data: {len(merged_auctions)} total records")
+    logging.debug(f"Date range: {merged_auctions['Date'].min()} to {merged_auctions['Date'].max()}")
     
     filename = "merged_auctions.csv"
     save_to_csv(merged_auctions, filename, output_dir)
@@ -47,7 +46,7 @@ def merge_auction_data(auction_data_dict, output_dir=DEFAULT_OUTPUT_DIR):
 
 def create_cot_wide_format(ice_data, eex_data, output_dir=DEFAULT_OUTPUT_DIR):
     """Create wide format COT data with renamed columns"""
-    print("\n=== Creating COT Wide Format ===")
+    logging.debug("\n=== Creating COT Wide Format ===")
     
     wide_dfs = []
     
@@ -72,7 +71,7 @@ def create_cot_wide_format(ice_data, eex_data, output_dir=DEFAULT_OUTPUT_DIR):
             wide_dfs.append(df_renamed)
     
     if not wide_dfs:
-        print("No COT data to create wide format")
+        logging.debug("No COT data to create wide format")
         return None
     
     # Merge all on Date
@@ -82,8 +81,8 @@ def create_cot_wide_format(ice_data, eex_data, output_dir=DEFAULT_OUTPUT_DIR):
     
     cot_wide = cot_wide.sort_values('Date')
     
-    print(f"COT wide format: {len(cot_wide)} rows, {len(cot_wide.columns)} columns")
-    print(f"Date range: {cot_wide['Date'].min()} to {cot_wide['Date'].max()}")
+    logging.debug(f"COT wide format: {len(cot_wide)} rows, {len(cot_wide.columns)} columns")
+    logging.debug(f"Date range: {cot_wide['Date'].min()} to {cot_wide['Date'].max()}")
     
     filename = "cot_wide_format.csv"
     save_to_csv(cot_wide, filename, output_dir)
@@ -93,10 +92,10 @@ def create_cot_wide_format(ice_data, eex_data, output_dir=DEFAULT_OUTPUT_DIR):
 
 def create_ttf_wide_format(ttf_data, output_dir=DEFAULT_OUTPUT_DIR):
     """Create wide format TTF COT data with renamed columns"""
-    print("\n=== Creating TTF COT Wide Format ===")
+    logging.debug("\n=== Creating TTF COT Wide Format ===")
     
     if not ttf_data:
-        print("No TTF data to create wide format")
+        logging.debug("No TTF data to create wide format")
         return None
     
     wide_dfs = []
@@ -118,7 +117,7 @@ def create_ttf_wide_format(ttf_data, output_dir=DEFAULT_OUTPUT_DIR):
         wide_dfs.append(df_renamed)
     
     if not wide_dfs:
-        print("No TTF COT data to create wide format")
+        logging.debug("No TTF COT data to create wide format")
         return None
     
     # Merge all on Date
@@ -128,8 +127,8 @@ def create_ttf_wide_format(ttf_data, output_dir=DEFAULT_OUTPUT_DIR):
     
     ttf_wide = ttf_wide.sort_values('Date')
     
-    print(f"TTF COT wide format: {len(ttf_wide)} rows, {len(ttf_wide.columns)} columns")
-    print(f"Date range: {ttf_wide['Date'].min()} to {ttf_wide['Date'].max()}")
+    logging.debug(f"TTF COT wide format: {len(ttf_wide)} rows, {len(ttf_wide.columns)} columns")
+    logging.debug(f"Date range: {ttf_wide['Date'].min()} to {ttf_wide['Date'].max()}")
     
     filename = "ttf_cot_wide_format.csv"
     save_to_csv(ttf_wide, filename, output_dir)
@@ -139,7 +138,7 @@ def create_ttf_wide_format(ttf_data, output_dir=DEFAULT_OUTPUT_DIR):
 
 def create_cot_summed_by_type(ice_data, eex_data, output_dir=DEFAULT_OUTPUT_DIR):
     """Create COT data summed across exchanges but preserving types"""
-    print("\n=== Creating COT Summed by Type ===")
+    logging.debug("\n=== Creating COT Summed by Type ===")
     
     type_dfs = []
     
@@ -182,7 +181,7 @@ def create_cot_summed_by_type(ice_data, eex_data, output_dir=DEFAULT_OUTPUT_DIR)
             type_dfs.append(summed_category)
     
     if not type_dfs:
-        print("No COT data to sum by type")
+        logging.debug("No COT data to sum by type")
         return None
     
     # Merge all categories on Date
@@ -192,9 +191,9 @@ def create_cot_summed_by_type(ice_data, eex_data, output_dir=DEFAULT_OUTPUT_DIR)
     
     cot_by_type = cot_by_type.sort_values('Date')
     
-    print(f"COT summed by type: {len(cot_by_type)} rows, {len(cot_by_type.columns)} columns")
-    print(f"Date range: {cot_by_type['Date'].min()} to {cot_by_type['Date'].max()}")
-    print(f"Categories preserved: {list(all_categories)}")
+    logging.debug(f"COT summed by type: {len(cot_by_type)} rows, {len(cot_by_type.columns)} columns")
+    logging.debug(f"Date range: {cot_by_type['Date'].min()} to {cot_by_type['Date'].max()}")
+    logging.debug(f"Categories preserved: {list(all_categories)}")
     
     filename = "cot_summed_by_type.csv"
     save_to_csv(cot_by_type, filename, output_dir)
@@ -204,10 +203,10 @@ def create_cot_summed_by_type(ice_data, eex_data, output_dir=DEFAULT_OUTPUT_DIR)
 
 def create_ttf_summed_by_type(ttf_data, output_dir=DEFAULT_OUTPUT_DIR):
     """Create TTF COT data summed by type (separate from other COT data)"""
-    print("\n=== Creating TTF COT Summed by Type ===")
+    logging.debug("\n=== Creating TTF COT Summed by Type ===")
     
     if not ttf_data:
-        print("No TTF data to sum by type")
+        logging.debug("No TTF data to sum by type")
         return None
     
     type_dfs = []
@@ -229,7 +228,7 @@ def create_ttf_summed_by_type(ttf_data, output_dir=DEFAULT_OUTPUT_DIR):
             type_dfs.append(ttf_renamed)
     
     if not type_dfs:
-        print("No TTF COT data to sum by type")
+        logging.debug("No TTF COT data to sum by type")
         return None
     
     # Merge all TTF categories on Date
@@ -239,9 +238,9 @@ def create_ttf_summed_by_type(ttf_data, output_dir=DEFAULT_OUTPUT_DIR):
     
     ttf_by_type = ttf_by_type.sort_values('Date')
     
-    print(f"TTF COT summed by type: {len(ttf_by_type)} rows, {len(ttf_by_type.columns)} columns")
-    print(f"Date range: {ttf_by_type['Date'].min()} to {ttf_by_type['Date'].max()}")
-    print(f"TTF categories preserved: {list(ttf_categories)}")
+    logging.debug(f"TTF COT summed by type: {len(ttf_by_type)} rows, {len(ttf_by_type.columns)} columns")
+    logging.debug(f"Date range: {ttf_by_type['Date'].min()} to {ttf_by_type['Date'].max()}")
+    logging.debug(f"TTF categories preserved: {list(ttf_categories)}")
     
     filename = "ttf_cot_summed_by_type.csv"
     save_to_csv(ttf_by_type, filename, output_dir)
@@ -251,7 +250,7 @@ def create_ttf_summed_by_type(ttf_data, output_dir=DEFAULT_OUTPUT_DIR):
 
 def create_cot_summed(ice_data, eex_data, output_dir=DEFAULT_OUTPUT_DIR):
     """Create summed COT data across all categories and exchanges"""
-    print("\n=== Creating COT Summed Data ===")
+    logging.debug("\n=== Creating COT Summed Data ===")
     
     all_dfs = []
     
@@ -273,7 +272,7 @@ def create_cot_summed(ice_data, eex_data, output_dir=DEFAULT_OUTPUT_DIR):
             all_dfs.append(df_numeric)
     
     if not all_dfs:
-        print("No COT data to sum")
+        logging.debug("No COT data to sum")
         return None
     
     # Combine all data
@@ -283,9 +282,9 @@ def create_cot_summed(ice_data, eex_data, output_dir=DEFAULT_OUTPUT_DIR):
     cot_summed = combined_df.groupby('Date').sum().reset_index()
     cot_summed = cot_summed.sort_values('Date')
     
-    print(f"COT summed data: {len(cot_summed)} rows")
-    print(f"Date range: {cot_summed['Date'].min()} to {cot_summed['Date'].max()}")
-    print(f"Summed columns: {[col for col in cot_summed.columns if col != 'Date']}")
+    logging.debug(f"COT summed data: {len(cot_summed)} rows")
+    logging.debug(f"Date range: {cot_summed['Date'].min()} to {cot_summed['Date'].max()}")
+    logging.debug(f"Summed columns: {[col for col in cot_summed.columns if col != 'Date']}")
     
     filename = "cot_summed.csv"
     save_to_csv(cot_summed, filename, output_dir)
@@ -295,10 +294,10 @@ def create_cot_summed(ice_data, eex_data, output_dir=DEFAULT_OUTPUT_DIR):
 
 def create_ttf_summed(ttf_data, output_dir=DEFAULT_OUTPUT_DIR):
     """Create summed TTF COT data across all categories"""
-    print("\n=== Creating TTF COT Summed Data ===")
+    logging.debug("\n=== Creating TTF COT Summed Data ===")
     
     if not ttf_data:
-        print("No TTF data to sum")
+        logging.debug("No TTF data to sum")
         return None
     
     all_dfs = []
@@ -317,7 +316,7 @@ def create_ttf_summed(ttf_data, output_dir=DEFAULT_OUTPUT_DIR):
         all_dfs.append(df_numeric)
     
     if not all_dfs:
-        print("No TTF data to sum")
+        logging.debug("No TTF data to sum")
         return None
     
     # Combine all TTF data
@@ -327,9 +326,9 @@ def create_ttf_summed(ttf_data, output_dir=DEFAULT_OUTPUT_DIR):
     ttf_summed = combined_df.groupby('Date').sum().reset_index()
     ttf_summed = ttf_summed.sort_values('Date')
     
-    print(f"TTF summed data: {len(ttf_summed)} rows")
-    print(f"Date range: {ttf_summed['Date'].min()} to {ttf_summed['Date'].max()}")
-    print(f"Summed columns: {[col for col in ttf_summed.columns if col != 'Date']}")
+    logging.debug(f"TTF summed data: {len(ttf_summed)} rows")
+    logging.debug(f"Date range: {ttf_summed['Date'].min()} to {ttf_summed['Date'].max()}")
+    logging.debug(f"Summed columns: {[col for col in ttf_summed.columns if col != 'Date']}")
     
     filename = "ttf_cot_summed.csv"
     save_to_csv(ttf_summed, filename, output_dir)
@@ -338,36 +337,36 @@ def create_ttf_summed(ttf_data, output_dir=DEFAULT_OUTPUT_DIR):
 
 
 def get_cot_data(client, cot_dict, exchange_name, from_date=DEFAULT_FROM_DATE, until_date=DEFAULT_UNTIL_DATE, output_dir=DEFAULT_OUTPUT_DIR):
-    print(f"\n=== Retrieving {exchange_name} COT Data ===")
+    logging.debug(f"\n=== Retrieving {exchange_name} COT Data ===")
     
     cot_data = {}
     
     for category, curve_id in cot_dict.items():
-        print(f"\nGetting {exchange_name} {category} data...")
+        logging.debug(f"\nGetting {exchange_name} {category} data...")
         
         df = client.get_tsgroup_data(curve_id, from_date=from_date, until_date=until_date)
         
         if df is not None and not df.empty:
             df = standardize_date_column(df)
             
-            print(f"Retrieved {len(df)} {category} records")
-            print(f"Columns: {list(df.columns)}")
-            print(f"Date range: {df['Date'].min()} to {df['Date'].max()}")
-            print("Sample data:")
-            print(df.head(3))
+            logging.debug(f"Retrieved {len(df)} {category} records")
+            logging.debug(f"Columns: {list(df.columns)}")
+            logging.debug(f"Date range: {df['Date'].min()} to {df['Date'].max()}")
+            logging.debug("Sample data:")
+            logging.debug(df.head(3))
             
             filename = f"{exchange_name.lower()}_cot_{category.lower()}.csv"
             save_to_csv(df, filename, output_dir)
             cot_data[category] = df
         else:
-            print(f"No {exchange_name} {category} data retrieved")
+            logging.debug(f"No {exchange_name} {category} data retrieved")
             cot_data[category] = None
     
     return cot_data
 
 
 def create_combined_cot_data(ice_data, eex_data, output_dir=DEFAULT_OUTPUT_DIR):
-    print("\n=== Creating Combined COT Data ===")
+    logging.debug("\n=== Creating Combined COT Data ===")
     
     combined_data = {}
     ice_categories = set(ice_data.keys()) if ice_data else set()
@@ -379,7 +378,7 @@ def create_combined_cot_data(ice_data, eex_data, output_dir=DEFAULT_OUTPUT_DIR):
         eex_df = eex_data.get(category)
         
         if ice_df is not None and eex_df is not None and not ice_df.empty and not eex_df.empty:
-            print(f"\nCombining {category} data from ICE and EEX...")
+            logging.debug(f"\nCombining {category} data from ICE and EEX...")
             
             ice_df_copy = standardize_date_column(ice_df.copy())
             eex_df_copy = standardize_date_column(eex_df.copy())
@@ -389,7 +388,7 @@ def create_combined_cot_data(ice_data, eex_data, output_dir=DEFAULT_OUTPUT_DIR):
             combined_df = pd.concat([ice_df_copy, eex_df_copy], ignore_index=True)
             combined_df = combined_df.sort_values('Date')
             
-            print(f"Combined {category} data has {len(combined_df)} total records")
+            logging.debug(f"Combined {category} data has {len(combined_df)} total records")
             
             filename = f"combined_cot_{category.lower()}.csv"
             save_to_csv(combined_df, filename, output_dir)
@@ -401,7 +400,7 @@ def create_combined_cot_data(ice_data, eex_data, output_dir=DEFAULT_OUTPUT_DIR):
 def process_all_cot_data(from_date=DEFAULT_FROM_DATE, until_date=DEFAULT_UNTIL_DATE, output_dir=DEFAULT_OUTPUT_DIR, include_auctions=False, auction_data=None, include_ttf=True):
     client = VeytAPIClient()
     
-    print("Starting COT data retrieval and transformation...")
+    logging.debug("Starting COT data retrieval and transformation...")
     
     ice_cot_data = get_cot_data(client, COT_ICE, "ICE", from_date, until_date, output_dir)
     eex_cot_data = get_cot_data(client, COT_EEX, "EEX", from_date, until_date, output_dir)
@@ -431,21 +430,21 @@ def process_all_cot_data(from_date=DEFAULT_FROM_DATE, until_date=DEFAULT_UNTIL_D
     if include_auctions and auction_data:
         merged_auctions = merge_auction_data(auction_data, output_dir)
     
-    print("\n=== COT Data Processing Complete ===")
-    print(f"ICE COT categories retrieved: {len([k for k, v in ice_cot_data.items() if v is not None])}")
-    print(f"EEX COT categories retrieved: {len([k for k, v in eex_cot_data.items() if v is not None])}")
+    logging.debug("\n=== COT Data Processing Complete ===")
+    logging.debug(f"ICE COT categories retrieved: {len([k for k, v in ice_cot_data.items() if v is not None])}")
+    logging.debug(f"EEX COT categories retrieved: {len([k for k, v in eex_cot_data.items() if v is not None])}")
     if include_ttf and ttf_cot_data:
-        print(f"TTF COT categories retrieved: {len([k for k, v in ttf_cot_data.items() if v is not None])}")
-    print(f"Combined categories created: {len(combined_cot_data)}")
-    print(f"COT wide format created: {'Yes' if cot_wide is not None else 'No'}")
-    print(f"COT summed data created: {'Yes' if cot_summed is not None else 'No'}")
-    print(f"COT summed by type created: {'Yes' if cot_summed_by_type is not None else 'No'}")
+        logging.debug(f"TTF COT categories retrieved: {len([k for k, v in ttf_cot_data.items() if v is not None])}")
+    logging.debug(f"Combined categories created: {len(combined_cot_data)}")
+    logging.debug(f"COT wide format created: {'Yes' if cot_wide is not None else 'No'}")
+    logging.debug(f"COT summed data created: {'Yes' if cot_summed is not None else 'No'}")
+    logging.debug(f"COT summed by type created: {'Yes' if cot_summed_by_type is not None else 'No'}")
     if include_ttf:
-        print(f"TTF wide format created: {'Yes' if ttf_wide is not None else 'No'}")
-        print(f"TTF summed data created: {'Yes' if ttf_summed is not None else 'No'}")
-        print(f"TTF summed by type created: {'Yes' if ttf_summed_by_type is not None else 'No'}")
+        logging.debug(f"TTF wide format created: {'Yes' if ttf_wide is not None else 'No'}")
+        logging.debug(f"TTF summed data created: {'Yes' if ttf_summed is not None else 'No'}")
+        logging.debug(f"TTF summed by type created: {'Yes' if ttf_summed_by_type is not None else 'No'}")
     if include_auctions:
-        print(f"Merged auctions created: {'Yes' if merged_auctions is not None else 'No'}")
+        logging.debug(f"Merged auctions created: {'Yes' if merged_auctions is not None else 'No'}")
     
     return {
         'ice_cot_data': ice_cot_data,

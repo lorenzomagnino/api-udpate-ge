@@ -1,4 +1,5 @@
 # Configuration file with all curve definitions
+from datetime import date
 
 FUTURES = {
     "eua": "cc_mp_ice-endex_eua-future_mc_ice_d_eur/t",
@@ -77,7 +78,7 @@ OPTIONS = {
 }
 # Default date ranges
 DEFAULT_FROM_DATE = "2021-01-01"
-DEFAULT_UNTIL_DATE = "2025-11-07"
+DEFAULT_UNTIL_DATE = date.today().isoformat()
 gcloud_filepath = "gs://dashboard_data_ge"  # Set if uploading to google cloud server
 
 DEFAULT_OUTPUT_DIR = f"{gcloud_filepath}/veyt_data_new"

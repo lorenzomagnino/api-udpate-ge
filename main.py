@@ -18,13 +18,13 @@ from datetime import datetime
 from datetime import date
 
 # Import all processing modules
-from veyt_futures import process_all_futures_and_commodities
-from veyt_weather import process_all_weather_data
-from veyt_cot import process_all_cot_data
-from veyt_auctions import process_all_auction_data
-from veyt_spreads import process_all_spreads_data
-from veyt_options import process_all_options_data
-from config import DEFAULT_FROM_DATE, DEFAULT_UNTIL_DATE, DEFAULT_OUTPUT_DIR
+from veyt.veyt_futures import process_all_futures_and_commodities
+from veyt.veyt_weather import process_all_weather_data
+from veyt.veyt_cot import process_all_cot_data
+from veyt.veyt_auctions import process_all_auction_data
+from veyt.veyt_spreads import process_all_spreads_data
+from veyt.veyt_options import process_all_options_data
+from veyt.config import DEFAULT_FROM_DATE, DEFAULT_OUTPUT_DIR
 
 
 def setup_logging(log_level='INFO'):
@@ -42,14 +42,14 @@ def setup_logging(log_level='INFO'):
 def create_output_directory(output_dir):
     """Create output directory if it doesn't exist"""
     os.makedirs(output_dir, exist_ok=True)
-    print(f"Output directory: {os.path.abspath(output_dir)}")
+    logging.debug(f"Output directory: {os.path.abspath(output_dir)}")
 
 
 def print_summary_report(results, output_dir):
-    """Print a summary report of all data retrieved"""
-    print("\n" + "="*80)
-    print("VEYT DATA RETRIEVAL SUMMARY REPORT")
-    print("="*80)
+    """logging.debug a summary report of all data retrieved"""
+    logging.debug("\n" + "="*80)
+    logging.debug("VEYT DATA RETRIEVAL SUMMARY REPORT")
+    logging.debug("="*80)
     
     total_files = 0
     
@@ -57,30 +57,30 @@ def print_summary_report(results, output_dir):
     if os.path.exists(output_dir):
         csv_files = [f for f in os.listdir(output_dir) if f.endswith('.csv')]
         total_files = len(csv_files)
-        print(f"Total CSV files created: {total_files}")
-        print(f"Output directory: {os.path.abspath(output_dir)}")
+        logging.debug(f"Total CSV files created: {total_files}")
+        logging.debug(f"Output directory: {os.path.abspath(output_dir)}")
     
-    print("\nData Categories Retrieved:")
-    print("-" * 40)
+    logging.debug("\nData Categories Retrieved:")
+    logging.debug("-" * 40)
     
     # Futures and Commodities
     if 'futures' in results:
         eua_raw, eua_processed = results['futures']
-        print("✓ Futures & Commodities Data")
+        logging.debug("✓ Futures & Commodities Data")
         if eua_processed is not None:
-            print(f"  - EUA processed data: {len(eua_processed)} trading days")
-        print("  - Other futures: UKA, RGGI, WCI")
-        print("  - Commodities: TTF, Coal, German Power, Brent Crude")
-        print("  - Volatility: 5d, 20d rolling")
+            logging.debug(f"  - EUA processed data: {len(eua_processed)} trading days")
+        logging.debug("  - Other futures: UKA, RGGI, WCI")
+        logging.debug("  - Commodities: TTF, Coal, German Power, Brent Crude")
+        logging.debug("  - Volatility: 5d, 20d rolling")
     
     # Weather
     if 'weather' in results:
         weather_data, combined_df, daily_aggregate, daily_stats = results['weather']
-        print("✓ Weather Data")
+        logging.debug("✓ Weather Data")
         if combined_df is not None:
-            print(f"  - Combined HDD/CDD records: {len(combined_df)}")
+            logging.debug(f"  - Combined HDD/CDD records: {len(combined_df)}")
         if daily_aggregate is not None:
-            print(f"  - Daily aggregated records: {len(daily_aggregate)}")
+            logging.debug(f"  - Daily aggregated records: {len(daily_aggregate)}")
     
     # COT - Fixed to handle dictionary return
     if 'cot' in results:
@@ -88,42 +88,42 @@ def print_summary_report(results, output_dir):
         ice_cot = cot_results.get('ice_cot_data', {})
         eex_cot = cot_results.get('eex_cot_data', {})
         combined_cot = cot_results.get('combined_cot_data', {})
-        print("✓ Commitment of Traders (COT) Data")
+        logging.debug("✓ Commitment of Traders (COT) Data")
         ice_count = len([k for k, v in ice_cot.items() if v is not None]) if ice_cot else 0
         eex_count = len([k for k, v in eex_cot.items() if v is not None]) if eex_cot else 0
-        print(f"  - ICE COT categories: {ice_count}")
-        print(f"  - EEX COT categories: {eex_count}")
-        print(f"  - Combined categories: {len(combined_cot) if combined_cot else 0}")
+        logging.debug(f"  - ICE COT categories: {ice_count}")
+        logging.debug(f"  - EEX COT categories: {eex_count}")
+        logging.debug(f"  - Combined categories: {len(combined_cot) if combined_cot else 0}")
     
     # Auctions
     if 'auctions' in results:
         all_auction_data, summary_df = results['auctions']
-        print("✓ Auction Data")
+        logging.debug("✓ Auction Data")
         total_auction_datasets = sum([len([k for k, v in auction_data.items() if v is not None]) 
                                     for auction_data in all_auction_data.values()])
-        print(f"  - Total auction datasets: {total_auction_datasets}")
-        print("  - EU, UKA, RGGI, WCI auctions")
+        logging.debug(f"  - Total auction datasets: {total_auction_datasets}")
+        logging.debug("  - EU, UKA, RGGI, WCI auctions")
     
     # Spreads
     if 'spreads' in results:
         spreads_data, combined_df, daily_aggregate, correlation_df = results['spreads']
-        print("✓ Spreads Data")
+        logging.debug("✓ Spreads Data")
         available_spreads = len([k for k, v in spreads_data.items() if v is not None]) if spreads_data else 0
-        print(f"  - Available spread types: {available_spreads}")
+        logging.debug(f"  - Available spread types: {available_spreads}")
         if combined_df is not None:
-            print(f"  - Combined spread records: {len(combined_df)}")
+            logging.debug(f"  - Combined spread records: {len(combined_df)}")
         if correlation_df is not None:
-            print(f"  - Correlation pairs analyzed: {len(correlation_df)}")
+            logging.debug(f"  - Correlation pairs analyzed: {len(correlation_df)}")
             
     # Options
     if 'options' in results:
-        print("✓ Options Data")
-        print("  - Put Options")
-        print("  - Call Options")
+        logging.debug("✓ Options Data")
+        logging.debug("  - Put Options")
+        logging.debug("  - Call Options")
         
-    print("\n" + "="*80)
-    print(f"Data retrieval completed at: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-    print("="*80)
+    logging.debug("\n" + "="*80)
+    logging.debug(f"Data retrieval completed at: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    logging.debug("="*80)
 
 
 def main():
@@ -131,8 +131,6 @@ def main():
     parser = argparse.ArgumentParser(description='Retrieve all Veyt data')
     parser.add_argument('--from-date', default=DEFAULT_FROM_DATE, 
                         help=f'Start date (default: {DEFAULT_FROM_DATE})')
-    # parser.add_argument('--until-date', default=DEFAULT_UNTIL_DATE,
-    #                     help=f'End date (default: {DEFAULT_UNTIL_DATE})')
     
     parser.add_argument('--until-date', default=date.today().isoformat(),
                     help=f'End date (default: {date.today().isoformat()})')
@@ -161,62 +159,56 @@ def main():
     # Create output directory
     create_output_directory(args.output_dir)
     
-    print("Starting comprehensive Veyt data retrieval...")
-    print(f"Date range: {args.from_date} to {args.until_date}")
-    print(f"Output directory: {args.output_dir}")
+    logging.info("Starting comprehensive Veyt data retrieval...")
+    logging.info(f"Date range: {args.from_date} to {args.until_date}")
+    logging.info(f"Output directory: {args.output_dir}")
     
     results = {}
     
     try:
         # 1. Futures and Commodities Data (/marketprice endpoint)
         if not args.skip_futures:
-            print("\n" + "="*60)
-            print("STEP 1: FUTURES AND COMMODITIES DATA")
-            print("="*60)
+            logging.info("STEP 1: FUTURES AND COMMODITIES DATA")
+            logging.info("="*60)
             results['futures'] = process_all_futures_and_commodities(
                 args.from_date, args.until_date, args.output_dir
             )
         
         # 2. Weather Data (/timeseries endpoint)
         if not args.skip_weather:
-            print("\n" + "="*60)
-            print("STEP 2: WEATHER DATA")
-            print("="*60)
+            logging.info("STEP 2: WEATHER DATA")
+            logging.info("="*60)
             results['weather'] = process_all_weather_data(
                 args.from_date, args.until_date, args.output_dir
             )
         
         # 3. COT Data (/tsgroup endpoint)
         if not args.skip_cot:
-            print("\n" + "="*60)
-            print("STEP 3: COMMITMENT OF TRADERS (COT) DATA")
-            print("="*60)
+            logging.info("STEP 3: COMMITMENT OF TRADERS (COT) DATA")
+            logging.info("="*60)
             results['cot'] = process_all_cot_data(
                 args.from_date, args.until_date, args.output_dir
             )
         
         # 4. Auction Data (/tsgroup endpoint)
         if not args.skip_auctions:
-            print("\n" + "="*60)
-            print("STEP 4: AUCTION DATA")
-            print("="*60)
+            logging.info("STEP 4: AUCTION DATA")
+            logging.info("="*60)
             results['auctions'] = process_all_auction_data(
                 args.from_date, args.until_date, args.output_dir
             )
         
         # 5. Spreads Data (/timeseries endpoint)
         if not args.skip_spreads:
-            print("\n" + "="*60)
-            print("STEP 5: SPREADS DATA")
-            print("="*60)
+            logging.info("STEP 5: SPREADS DATA")
+            logging.info("="*60)
             results['spreads'] = process_all_spreads_data(
                 args.from_date, args.until_date, args.output_dir
             )
         # 6. Options Data (/options endpoint)
         if not args.skip_options:
-            print("\n" + "="*60)
-            print("STEP 6: OPTIONS DATA")
-            print("="*60)
+            logging.info("STEP 6: OPTIONS DATA")
+            logging.info("="*60)
             results['options'] = process_all_options_data(
                 args.from_date, args.until_date, args.output_dir
             )
@@ -226,7 +218,7 @@ def main():
         
     except Exception as e:
         logging.error(f"Error during data retrieval: {e}")
-        print(f"\nError occurred: {e}")
+        logging.debug(f"\nError occurred: {e}")
         sys.exit(1)
 
 
