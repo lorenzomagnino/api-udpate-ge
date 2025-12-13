@@ -8,7 +8,11 @@ alias deactivate 'test $?_OLD_VIRTUAL_PATH != 0 && setenv PATH "$_OLD_VIRTUAL_PA
 # Unset irrelevant variables.
 deactivate nondestructive
 
-setenv VIRTUAL_ENV "/Users/lorenzomagnino/Desktop/ge_dashboard/.venv"
+set _venv_script_dir = `dirname $0`
+set _venv_absolute_dir = `cd "$_venv_script_dir" && pwd`
+setenv VIRTUAL_ENV "$_venv_absolute_dir/.."
+unset _venv_script_dir
+unset _venv_absolute_dir
 
 set _OLD_VIRTUAL_PATH="$PATH"
 setenv PATH "$VIRTUAL_ENV/bin:$PATH"

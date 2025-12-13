@@ -37,7 +37,14 @@ deactivate () {
 # unset irrelevant variables
 deactivate nondestructive
 
-VIRTUAL_ENV="/Users/lorenzomagnino/Desktop/ge_dashboard/.venv"
+# Determine the virtual environment directory dynamically based on script location
+if [ -n "${BASH_SOURCE:-}" ]; then
+    VIRTUAL_ENV="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+elif [ -n "${ZSH_VERSION:-}" ]; then
+    VIRTUAL_ENV="$(cd "$(dirname "${(%):-%x}")/.." && pwd)"
+else
+    VIRTUAL_ENV="$(cd "$(dirname "$0")/.." && pwd)"
+fi
 export VIRTUAL_ENV
 
 _OLD_VIRTUAL_PATH="$PATH"

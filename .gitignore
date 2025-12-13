@@ -1,0 +1,49 @@
+# Virtual Environment
+.venv/
+venv/
+ENV/
+env/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Environment variables
+.env
+.env.local
+
+# Logs
+*.log
+veyt_data_retrieval.log
+
+# Token cache
+.veyt_token_cache.json
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Data files (if not needed in repo)
+*.csv
+*.pkl
+*.json
+!config.py
+!package.json
+!package-lock.json
+
+# Build artifacts
+*.tex
+
