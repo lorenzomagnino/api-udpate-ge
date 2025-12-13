@@ -1,0 +1,39 @@
+name: Daily Prediction Calculation
+
+on:
+  schedule:
+    # Run daily at 6:37 AM UK time
+    - cron: '37 5 * * *'  # 5:37 AM UTC
+  workflow_dispatch:  # Allow manual triggering
+
+jobs:
+  calculate-predictions:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+    
+    - name: Authenticate to Google Cloud
+      uses: google-github-actions/auth@v2
+      with:
+        credentials_json: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
+    
+    - name: Set up Cloud SDK
+      uses: google-github-actions/setup-gcloud@v2
+    
+    - name: Run prediction calculation
+      run: |
+        python trading_new.py
+      env:
+        MPLBACKEND: Agg

@@ -1,0 +1,247 @@
+[2025-12-13 21:40:03] INFO: Using predictions folder: gs://dashboard_data_ge/predictions/predictions_2025-12-13
+[2025-12-13 21:40:03] INFO: Loading existing data_after_preprocessor.csv from GCS, skipping data processing
+[2025-12-13 21:48:53] INFO: Using predictions folder: gs://dashboard_data_ge/predictions/predictions_2025-12-13
+[2025-12-13 21:48:53] INFO: Deleting existing folder: gs://dashboard_data_ge/predictions/predictions_2025-12-13
+[2025-12-13 21:48:56] INFO: Step 1: Data Processing
+[2025-12-13 21:49:31] INFO: Saved data_after_preprocessor.csv to gs://dashboard_data_ge/predictions/predictions_2025-12-13
+[2025-12-13 21:50:16] INFO: Saved results_df.csv to gs://dashboard_data_ge/predictions/predictions_2025-12-13
+[2025-12-13 21:50:19] INFO: Saved eua_feature_selection_results.csv to gs://dashboard_data_ge/predictions/predictions_2025-12-13
+[2025-12-13 21:51:08] INFO: Saved day ahead prediction to gs://dashboard_data_ge/predictions/predictions_2025-12-13
+[2025-12-13 21:51:09] INFO: Saved eua_results.csv to gs://dashboard_data_ge/predictions/predictions_2025-12-13
+[2025-12-13 21:51:15] INFO: Saved forecast comparison CSV to gs://dashboard_data_ge/predictions/predictions_2025-12-13/forecast_comparison.csv
+[2025-12-13 21:55:53] INFO: Using predictions folder: gs://dashboard_data_ge/predictions/predictions_2025-12-13
+[2025-12-13 21:55:53] INFO: Deleting existing folder: gs://dashboard_data_ge/predictions/predictions_2025-12-13
+[2025-12-13 21:55:58] INFO: Step 1: Data Processing
+[2025-12-13 21:56:33] INFO: Saved data_after_preprocessor.csv to gs://dashboard_data_ge/predictions/predictions_2025-12-13
+[2025-12-13 21:57:19] INFO: Saved results_df.csv to gs://dashboard_data_ge/predictions/predictions_2025-12-13
+[2025-12-13 21:57:21] INFO: Saved eua_feature_selection_results.csv to gs://dashboard_data_ge/predictions/predictions_2025-12-13
+[2025-12-13 21:58:15] INFO: Saved day ahead prediction to gs://dashboard_data_ge/predictions/predictions_2025-12-13
+[2025-12-13 21:58:15] INFO: Day ahead prediction LASSO: {'date': Timestamp('2025-12-13 00:00:00'), 'predicted_original': np.float64(84.02767109776474), 'ci_lower_original': np.float64(82.26659029994337), 'ci_upper_original': np.float64(85.82645135006874), 'calculation_report': '\n================================================================================\nDETAILED LASSO CALCULATION FOR DAY-AHEAD FORECAST\n================================================================================\n\nPrediction Date: 2025-12-13 (t+1)\nCurrent Date: 2025-12-12 (t)\nTraining Window: 2025-10-14 to 2025-12-11\nAlpha (regularization): 0.001000\n\n------------------------------------------------------------\nTRANSFORMATIONS APPLIED:\n------------------------------------------------------------\nTTF_front_low                 : levels\nweather_cdd_min               : first_diff\nop_call_bm_atm_far_vol        : log_diff\nfuel_switch_value             : levels\nCOT_CU_Positions_long_total   : weekly_pct\nEUA_benchmark_volume          : levels\nCOT_TTF_CU_Positions_long_total: weekly_pct\n\n------------------------------------------------------------\nRAW FEATURE VALUES (before transformation):\n------------------------------------------------------------\nTTF_front_low                 :       26.905000 (levels)\nweather_cdd_min               :        0.000000 (t=0.0000, t-1=0.0000)\nop_call_bm_atm_far_vol        :        0.000000 (t=24.3740, t-1=24.3740)\nfuel_switch_value             :       50.680205 (levels)\nCOT_CU_Positions_long_total   :        0.018753 (weekly %, current=391243710.0000)\nEUA_benchmark_volume          : 20732000.000000 (levels)\nCOT_TTF_CU_Positions_long_total:        0.049539 (weekly %, current=1387095951.2300)\n\n------------------------------------------------------------\nSCALING PARAMETERS:\n------------------------------------------------------------\nTTF_front_low                 : mean= 30.105909, std=  1.757755\nweather_cdd_min               : mean= -0.000086, std=  0.004911\nop_call_bm_atm_far_vol        : mean=  0.000150, std=  1.164431\nfuel_switch_value             : mean= 59.862983, std=  7.175776\nCOT_CU_Positions_long_total   : mean=  0.011435, std=  0.014854\nEUA_benchmark_volume          : mean=34528227.272727, std=9312117.025349\nCOT_TTF_CU_Positions_long_total: mean=  0.012972, std=  0.026847\n\n------------------------------------------------------------\nSCALED FEATURE VALUES:\n------------------------------------------------------------\nTTF_front_low                 :       -1.821022\nweather_cdd_min               :        0.017575\nop_call_bm_atm_far_vol        :       -0.000129\nfuel_switch_value             :       -1.279691\nCOT_CU_Positions_long_total   :        0.492674\nEUA_benchmark_volume          :       -1.481535\nCOT_TTF_CU_Positions_long_total:        1.362048\n\n------------------------------------------------------------\nMODEL COEFFICIENTS:\n------------------------------------------------------------\nTTF_front_low                 :       -0.000000 (inactive)\nweather_cdd_min               :        0.000000 (inactive)\nop_call_bm_atm_far_vol        :       -0.000979\nfuel_switch_value             :       -0.000000 (inactive)\nCOT_CU_Positions_long_total   :        0.000000 (inactive)\nEUA_benchmark_volume          :        0.000413\nCOT_TTF_CU_Positions_long_total:        0.001360\nIntercept                     :        0.001592\n\n------------------------------------------------------------\nCALCULATION (coef * scaled_value):\n------------------------------------------------------------\nop_call_bm_atm_far_vol        :  -0.000979 *  -0.000129 =   0.000000\nEUA_benchmark_volume          :   0.000413 *  -1.481535 =  -0.000612\nCOT_TTF_CU_Positions_long_total:   0.001360 *   1.362048 =   0.001852\nIntercept                     :                            0.001592\n------------------------------------------------------------\nTOTAL (log difference)        :                            0.002832\nPredicted (should match)      :                            0.002832\n\n------------------------------------------------------------\nCONFIDENCE INTERVAL CALCULATION:\n------------------------------------------------------------\nMSE from training: 0.000107\nPrediction variance: 0.000110\nt-value (95% CI): 2.021075\nMargin of error: 0.021181\n\n------------------------------------------------------------\nINVERSE TRANSFORMATION:\n------------------------------------------------------------\nLast EUA value (t): 83.790000\nPredicted log difference: 0.002832\nFormula: 83.790000 * exp(0.002832) = 84.027671\nFinal EUA prediction (t+1): 84.027671\n95% CI Lower: 82.266590\n95% CI Upper: 85.826451\n\n------------------------------------------------------------\nEXCEL REPLICATION FORMULA:\n------------------------------------------------------------\n\nFor scaled values (Xi_scaled = (Xi_raw - mean_i) / std_i):\n=-0.000979*((X_3_raw-0.000150)/1.164431)+0.000413*((X_6_raw-34528227.272727)/9312117.025349)+0.001360*((X_7_raw-0.012972)/0.026847)+0.001592\n\nFinal EUA = Last_EUA * EXP(above_result)\n\nFINAL DAY-AHEAD FORECAST: 84.03 EUR\n95% CONFIDENCE INTERVAL: [82.27, 85.83] EUR\n================================================================================\n'}
+[2025-12-13 21:58:15] INFO: Saved eua_results.csv to gs://dashboard_data_ge/predictions/predictions_2025-12-13
+[2025-12-13 21:58:16] INFO: 
+================================================================================
+DETAILED LASSO CALCULATION FOR DAY-AHEAD FORECAST
+================================================================================
+
+Prediction Date: 2025-12-13 (t+1)
+Current Date: 2025-12-12 (t)
+Training Window: 2025-10-14 to 2025-12-11
+Alpha (regularization): 0.001000
+
+------------------------------------------------------------
+TRANSFORMATIONS APPLIED:
+------------------------------------------------------------
+TTF_front_low                 : levels
+weather_cdd_min               : first_diff
+op_call_bm_atm_far_vol        : log_diff
+fuel_switch_value             : levels
+COT_CU_Positions_long_total   : weekly_pct
+EUA_benchmark_volume          : levels
+COT_TTF_CU_Positions_long_total: weekly_pct
+
+------------------------------------------------------------
+RAW FEATURE VALUES (before transformation):
+------------------------------------------------------------
+TTF_front_low                 :       26.905000 (levels)
+weather_cdd_min               :        0.000000 (t=0.0000, t-1=0.0000)
+op_call_bm_atm_far_vol        :        0.000000 (t=24.3740, t-1=24.3740)
+fuel_switch_value             :       50.680205 (levels)
+COT_CU_Positions_long_total   :        0.018753 (weekly %, current=391243710.0000)
+EUA_benchmark_volume          : 20732000.000000 (levels)
+COT_TTF_CU_Positions_long_total:        0.049539 (weekly %, current=1387095951.2300)
+
+------------------------------------------------------------
+SCALING PARAMETERS:
+------------------------------------------------------------
+TTF_front_low                 : mean= 30.105909, std=  1.757755
+weather_cdd_min               : mean= -0.000086, std=  0.004911
+op_call_bm_atm_far_vol        : mean=  0.000150, std=  1.164431
+fuel_switch_value             : mean= 59.862983, std=  7.175776
+COT_CU_Positions_long_total   : mean=  0.011435, std=  0.014854
+EUA_benchmark_volume          : mean=34528227.272727, std=9312117.025349
+COT_TTF_CU_Positions_long_total: mean=  0.012972, std=  0.026847
+
+------------------------------------------------------------
+SCALED FEATURE VALUES:
+------------------------------------------------------------
+TTF_front_low                 :       -1.821022
+weather_cdd_min               :        0.017575
+op_call_bm_atm_far_vol        :       -0.000129
+fuel_switch_value             :       -1.279691
+COT_CU_Positions_long_total   :        0.492674
+EUA_benchmark_volume          :       -1.481535
+COT_TTF_CU_Positions_long_total:        1.362048
+
+------------------------------------------------------------
+MODEL COEFFICIENTS:
+------------------------------------------------------------
+TTF_front_low                 :       -0.000000 (inactive)
+weather_cdd_min               :        0.000000 (inactive)
+op_call_bm_atm_far_vol        :       -0.000979
+fuel_switch_value             :       -0.000000 (inactive)
+COT_CU_Positions_long_total   :        0.000000 (inactive)
+EUA_benchmark_volume          :        0.000413
+COT_TTF_CU_Positions_long_total:        0.001360
+Intercept                     :        0.001592
+
+------------------------------------------------------------
+CALCULATION (coef * scaled_value):
+------------------------------------------------------------
+op_call_bm_atm_far_vol        :  -0.000979 *  -0.000129 =   0.000000
+EUA_benchmark_volume          :   0.000413 *  -1.481535 =  -0.000612
+COT_TTF_CU_Positions_long_total:   0.001360 *   1.362048 =   0.001852
+Intercept                     :                            0.001592
+------------------------------------------------------------
+TOTAL (log difference)        :                            0.002832
+Predicted (should match)      :                            0.002832
+
+------------------------------------------------------------
+CONFIDENCE INTERVAL CALCULATION:
+------------------------------------------------------------
+MSE from training: 0.000107
+Prediction variance: 0.000110
+t-value (95% CI): 2.021075
+Margin of error: 0.021181
+
+------------------------------------------------------------
+INVERSE TRANSFORMATION:
+------------------------------------------------------------
+Last EUA value (t): 83.790000
+Predicted log difference: 0.002832
+Formula: 83.790000 * exp(0.002832) = 84.027671
+Final EUA prediction (t+1): 84.027671
+95% CI Lower: 82.266590
+95% CI Upper: 85.826451
+
+------------------------------------------------------------
+EXCEL REPLICATION FORMULA:
+------------------------------------------------------------
+
+For scaled values (Xi_scaled = (Xi_raw - mean_i) / std_i):
+=-0.000979*((X_3_raw-0.000150)/1.164431)+0.000413*((X_6_raw-34528227.272727)/9312117.025349)+0.001360*((X_7_raw-0.012972)/0.026847)+0.001592
+
+Final EUA = Last_EUA * EXP(above_result)
+
+FINAL DAY-AHEAD FORECAST: 84.03 EUR
+95% CONFIDENCE INTERVAL: [82.27, 85.83] EUR
+================================================================================
+
+[2025-12-13 21:58:18] INFO: Saved forecast comparison CSV to gs://dashboard_data_ge/predictions/predictions_2025-12-13/forecast_comparison.csv
+[2025-12-13 21:59:29] INFO: Using predictions folder: gs://dashboard_data_ge/predictions/predictions_2025-12-13
+[2025-12-13 21:59:29] INFO: Deleting existing folder: gs://dashboard_data_ge/predictions/predictions_2025-12-13
+[2025-12-13 21:59:34] INFO: Step 1: Data Processing
+[2025-12-13 22:00:09] INFO: Saved data_after_preprocessor.csv to gs://dashboard_data_ge/predictions/predictions_2025-12-13
+[2025-12-13 22:00:52] INFO: Saved results_df.csv to gs://dashboard_data_ge/predictions/predictions_2025-12-13
+[2025-12-13 22:00:55] INFO: Saved eua_feature_selection_results.csv to gs://dashboard_data_ge/predictions/predictions_2025-12-13
+[2025-12-13 22:01:45] INFO: Saved day ahead prediction to gs://dashboard_data_ge/predictions/predictions_2025-12-13
+[2025-12-13 22:01:46] INFO: Day ahead prediction LASSO: {'date': Timestamp('2025-12-13 00:00:00'), 'predicted_original': np.float64(84.02767109776474), 'ci_lower_original': np.float64(82.26659029994337), 'ci_upper_original': np.float64(85.82645135006874), 'calculation_report': '\n================================================================================\nDETAILED LASSO CALCULATION FOR DAY-AHEAD FORECAST\n================================================================================\n\nPrediction Date: 2025-12-13 (t+1)\nCurrent Date: 2025-12-12 (t)\nTraining Window: 2025-10-14 to 2025-12-11\nAlpha (regularization): 0.001000\n\n------------------------------------------------------------\nTRANSFORMATIONS APPLIED:\n------------------------------------------------------------\nTTF_front_low                 : levels\nweather_cdd_min               : first_diff\nop_call_bm_atm_far_vol        : log_diff\nfuel_switch_value             : levels\nCOT_CU_Positions_long_total   : weekly_pct\nEUA_benchmark_volume          : levels\nCOT_TTF_CU_Positions_long_total: weekly_pct\n\n------------------------------------------------------------\nRAW FEATURE VALUES (before transformation):\n------------------------------------------------------------\nTTF_front_low                 :       26.905000 (levels)\nweather_cdd_min               :        0.000000 (t=0.0000, t-1=0.0000)\nop_call_bm_atm_far_vol        :        0.000000 (t=24.3740, t-1=24.3740)\nfuel_switch_value             :       50.680205 (levels)\nCOT_CU_Positions_long_total   :        0.018753 (weekly %, current=391243710.0000)\nEUA_benchmark_volume          : 20732000.000000 (levels)\nCOT_TTF_CU_Positions_long_total:        0.049539 (weekly %, current=1387095951.2300)\n\n------------------------------------------------------------\nSCALING PARAMETERS:\n------------------------------------------------------------\nTTF_front_low                 : mean= 30.105909, std=  1.757755\nweather_cdd_min               : mean= -0.000086, std=  0.004911\nop_call_bm_atm_far_vol        : mean=  0.000150, std=  1.164431\nfuel_switch_value             : mean= 59.862983, std=  7.175776\nCOT_CU_Positions_long_total   : mean=  0.011435, std=  0.014854\nEUA_benchmark_volume          : mean=34528227.272727, std=9312117.025349\nCOT_TTF_CU_Positions_long_total: mean=  0.012972, std=  0.026847\n\n------------------------------------------------------------\nSCALED FEATURE VALUES:\n------------------------------------------------------------\nTTF_front_low                 :       -1.821022\nweather_cdd_min               :        0.017575\nop_call_bm_atm_far_vol        :       -0.000129\nfuel_switch_value             :       -1.279691\nCOT_CU_Positions_long_total   :        0.492674\nEUA_benchmark_volume          :       -1.481535\nCOT_TTF_CU_Positions_long_total:        1.362048\n\n------------------------------------------------------------\nMODEL COEFFICIENTS:\n------------------------------------------------------------\nTTF_front_low                 :       -0.000000 (inactive)\nweather_cdd_min               :        0.000000 (inactive)\nop_call_bm_atm_far_vol        :       -0.000979\nfuel_switch_value             :       -0.000000 (inactive)\nCOT_CU_Positions_long_total   :        0.000000 (inactive)\nEUA_benchmark_volume          :        0.000413\nCOT_TTF_CU_Positions_long_total:        0.001360\nIntercept                     :        0.001592\n\n------------------------------------------------------------\nCALCULATION (coef * scaled_value):\n------------------------------------------------------------\nop_call_bm_atm_far_vol        :  -0.000979 *  -0.000129 =   0.000000\nEUA_benchmark_volume          :   0.000413 *  -1.481535 =  -0.000612\nCOT_TTF_CU_Positions_long_total:   0.001360 *   1.362048 =   0.001852\nIntercept                     :                            0.001592\n------------------------------------------------------------\nTOTAL (log difference)        :                            0.002832\nPredicted (should match)      :                            0.002832\n\n------------------------------------------------------------\nCONFIDENCE INTERVAL CALCULATION:\n------------------------------------------------------------\nMSE from training: 0.000107\nPrediction variance: 0.000110\nt-value (95% CI): 2.021075\nMargin of error: 0.021181\n\n------------------------------------------------------------\nINVERSE TRANSFORMATION:\n------------------------------------------------------------\nLast EUA value (t): 83.790000\nPredicted log difference: 0.002832\nFormula: 83.790000 * exp(0.002832) = 84.027671\nFinal EUA prediction (t+1): 84.027671\n95% CI Lower: 82.266590\n95% CI Upper: 85.826451\n\n------------------------------------------------------------\nEXCEL REPLICATION FORMULA:\n------------------------------------------------------------\n\nFor scaled values (Xi_scaled = (Xi_raw - mean_i) / std_i):\n=-0.000979*((X_3_raw-0.000150)/1.164431)+0.000413*((X_6_raw-34528227.272727)/9312117.025349)+0.001360*((X_7_raw-0.012972)/0.026847)+0.001592\n\nFinal EUA = Last_EUA * EXP(above_result)\n\nFINAL DAY-AHEAD FORECAST: 84.03 EUR\n95% CONFIDENCE INTERVAL: [82.27, 85.83] EUR\n================================================================================\n'}
+[2025-12-13 22:01:47] INFO: Saved eua_results.csv to gs://dashboard_data_ge/predictions/predictions_2025-12-13
+[2025-12-13 22:01:47] INFO: 
+================================================================================
+DETAILED LASSO CALCULATION FOR DAY-AHEAD FORECAST
+================================================================================
+
+Prediction Date: 2025-12-13 (t+1)
+Current Date: 2025-12-12 (t)
+Training Window: 2025-10-14 to 2025-12-11
+Alpha (regularization): 0.001000
+
+------------------------------------------------------------
+TRANSFORMATIONS APPLIED:
+------------------------------------------------------------
+TTF_front_low                 : levels
+weather_cdd_min               : first_diff
+op_call_bm_atm_far_vol        : log_diff
+fuel_switch_value             : levels
+COT_CU_Positions_long_total   : weekly_pct
+EUA_benchmark_volume          : levels
+COT_TTF_CU_Positions_long_total: weekly_pct
+
+------------------------------------------------------------
+RAW FEATURE VALUES (before transformation):
+------------------------------------------------------------
+TTF_front_low                 :       26.905000 (levels)
+weather_cdd_min               :        0.000000 (t=0.0000, t-1=0.0000)
+op_call_bm_atm_far_vol        :        0.000000 (t=24.3740, t-1=24.3740)
+fuel_switch_value             :       50.680205 (levels)
+COT_CU_Positions_long_total   :        0.018753 (weekly %, current=391243710.0000)
+EUA_benchmark_volume          : 20732000.000000 (levels)
+COT_TTF_CU_Positions_long_total:        0.049539 (weekly %, current=1387095951.2300)
+
+------------------------------------------------------------
+SCALING PARAMETERS:
+------------------------------------------------------------
+TTF_front_low                 : mean= 30.105909, std=  1.757755
+weather_cdd_min               : mean= -0.000086, std=  0.004911
+op_call_bm_atm_far_vol        : mean=  0.000150, std=  1.164431
+fuel_switch_value             : mean= 59.862983, std=  7.175776
+COT_CU_Positions_long_total   : mean=  0.011435, std=  0.014854
+EUA_benchmark_volume          : mean=34528227.272727, std=9312117.025349
+COT_TTF_CU_Positions_long_total: mean=  0.012972, std=  0.026847
+
+------------------------------------------------------------
+SCALED FEATURE VALUES:
+------------------------------------------------------------
+TTF_front_low                 :       -1.821022
+weather_cdd_min               :        0.017575
+op_call_bm_atm_far_vol        :       -0.000129
+fuel_switch_value             :       -1.279691
+COT_CU_Positions_long_total   :        0.492674
+EUA_benchmark_volume          :       -1.481535
+COT_TTF_CU_Positions_long_total:        1.362048
+
+------------------------------------------------------------
+MODEL COEFFICIENTS:
+------------------------------------------------------------
+TTF_front_low                 :       -0.000000 (inactive)
+weather_cdd_min               :        0.000000 (inactive)
+op_call_bm_atm_far_vol        :       -0.000979
+fuel_switch_value             :       -0.000000 (inactive)
+COT_CU_Positions_long_total   :        0.000000 (inactive)
+EUA_benchmark_volume          :        0.000413
+COT_TTF_CU_Positions_long_total:        0.001360
+Intercept                     :        0.001592
+
+------------------------------------------------------------
+CALCULATION (coef * scaled_value):
+------------------------------------------------------------
+op_call_bm_atm_far_vol        :  -0.000979 *  -0.000129 =   0.000000
+EUA_benchmark_volume          :   0.000413 *  -1.481535 =  -0.000612
+COT_TTF_CU_Positions_long_total:   0.001360 *   1.362048 =   0.001852
+Intercept                     :                            0.001592
+------------------------------------------------------------
+TOTAL (log difference)        :                            0.002832
+Predicted (should match)      :                            0.002832
+
+------------------------------------------------------------
+CONFIDENCE INTERVAL CALCULATION:
+------------------------------------------------------------
+MSE from training: 0.000107
+Prediction variance: 0.000110
+t-value (95% CI): 2.021075
+Margin of error: 0.021181
+
+------------------------------------------------------------
+INVERSE TRANSFORMATION:
+------------------------------------------------------------
+Last EUA value (t): 83.790000
+Predicted log difference: 0.002832
+Formula: 83.790000 * exp(0.002832) = 84.027671
+Final EUA prediction (t+1): 84.027671
+95% CI Lower: 82.266590
+95% CI Upper: 85.826451
+
+------------------------------------------------------------
+EXCEL REPLICATION FORMULA:
+------------------------------------------------------------
+
+For scaled values (Xi_scaled = (Xi_raw - mean_i) / std_i):
+=-0.000979*((X_3_raw-0.000150)/1.164431)+0.000413*((X_6_raw-34528227.272727)/9312117.025349)+0.001360*((X_7_raw-0.012972)/0.026847)+0.001592
+
+Final EUA = Last_EUA * EXP(above_result)
+
+FINAL DAY-AHEAD FORECAST: 84.03 EUR
+95% CONFIDENCE INTERVAL: [82.27, 85.83] EUR
+================================================================================
+
+[2025-12-13 22:01:47] INFO: Saved forecast comparison CSV to gs://dashboard_data_ge/predictions/predictions_2025-12-13/forecast_comparison.csv

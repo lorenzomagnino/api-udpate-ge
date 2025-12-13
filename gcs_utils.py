@@ -114,6 +114,31 @@ class GCSManager:
         except Exception as e:
             print(f"Error getting file modified time: {e}")
             return None
+    
+    def delete_folder(self, folder_path: str) -> bool:
+        """Delete all files in a folder (prefix) in GCS"""
+        try:
+            # Ensure folder_path ends with / to match all files in the folder
+            if not folder_path.endswith('/'):
+                folder_path = folder_path + '/'
+            
+            # List all blobs with the given prefix
+            blobs = self.bucket.list_blobs(prefix=folder_path)
+            deleted_count = 0
+            
+            for blob in blobs:
+                blob.delete()
+                deleted_count += 1
+            
+            if deleted_count > 0:
+                print(f"Deleted {deleted_count} file(s) from gs://{self.bucket_name}/{folder_path}")
+            else:
+                print(f"No files found in gs://{self.bucket_name}/{folder_path}")
+            
+            return True
+        except Exception as e:
+            print(f"Error deleting folder {folder_path} from GCS: {e}")
+            return False
 
 
 # Global GCS manager instance
