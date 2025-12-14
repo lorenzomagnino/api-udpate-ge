@@ -56,6 +56,22 @@ def save_eua_futures_data(client, from_date=DEFAULT_FROM_DATE, until_date=DEFAUL
             (trade_data['maturity_month'] == 12)
         ]
         
+        # Check if current year's December contract is expired or expiring
+        # If maturity_date <= trade_date, the contract is expired/expiring, so roll over to next year
+        if not benchmark_contracts.empty:
+            current_benchmark = benchmark_contracts.iloc[0]
+            maturity_date = pd.to_datetime(current_benchmark['maturity_date'])
+            if maturity_date <= trade_dt:
+                # Contract is expired or expiring, use next year's December contract
+                next_year_benchmark = trade_data[
+                    (trade_data['maturity_year'] == trade_year + 1) & 
+                    (trade_data['maturity_month'] == 12)
+                ]
+                if not next_year_benchmark.empty:
+                    benchmark_contracts = next_year_benchmark
+                    logging.debug(f"Note: Rolling over to next year's December contract for trade date {trade_date} (current year December expires on {maturity_date.date()})")
+        
+        # Fallback: if current year's December is empty and we're in December, use next year's
         if benchmark_contracts.empty and trade_month == 12:
             benchmark_contracts = trade_data[
                 (trade_data['maturity_year'] == trade_year + 1) & 
@@ -401,11 +417,36 @@ def process_volatility_benchmark(df, name):
         
         trade_dt = pd.to_datetime(trade_date)
         trade_year = trade_dt.year
+        trade_month = trade_dt.month
         
         benchmark_contracts = trade_data[
             (trade_data['maturity_year'] == trade_year) & 
             (trade_data['maturity_month'] == 12)
         ]
+        
+        # Check if current year's December contract is expired or expiring
+        # If maturity_date <= trade_date, the contract is expired/expiring, so roll over to next year
+        if not benchmark_contracts.empty:
+            current_benchmark = benchmark_contracts.iloc[0]
+            maturity_date = pd.to_datetime(current_benchmark['maturity_date'])
+            if maturity_date <= trade_dt:
+                # Contract is expired or expiring, use next year's December contract
+                next_year_benchmark = trade_data[
+                    (trade_data['maturity_year'] == trade_year + 1) & 
+                    (trade_data['maturity_month'] == 12)
+                ]
+                if not next_year_benchmark.empty:
+                    benchmark_contracts = next_year_benchmark
+                    logging.debug(f"Note: Rolling over volatility {name} to next year's December contract for trade date {trade_date} (current year December expires on {maturity_date.date()})")
+        
+        # Fallback: if current year's December is empty and we're in December, use next year's
+        if benchmark_contracts.empty and trade_month == 12:
+            benchmark_contracts = trade_data[
+                (trade_data['maturity_year'] == trade_year + 1) & 
+                (trade_data['maturity_month'] == 12)
+            ]
+            if not benchmark_contracts.empty:
+                logging.debug(f"Note: Using next year's December contract for volatility {name} on trade date {trade_date} (current year December not available)")
         
         row = {'trade_date': trade_date}
         
