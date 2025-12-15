@@ -3,6 +3,7 @@ name: Daily Prediction Calculation
 on:
   schedule:
     # Run daily at 6:37 AM UK time
+    - cron: '10 5 * * *'
     - cron: '37 6 * * *'  # 5:37 AM UTC
   workflow_dispatch:  # Allow manual triggering
 
