@@ -141,7 +141,7 @@ def save_eua_futures_data(client, from_date=DEFAULT_FROM_DATE, until_date=DEFAUL
     logging.debug(f"Found EUA_benchmark contracts for {result_df['EUA_benchmark_open'].notna().sum()} dates")
     
     result_df = result_df.set_index('trade_date').sort_index()
-    result_df = result_df.fillna(method='ffill')
+    result_df = result_df.ffill()
     result_df = result_df.reset_index()
     
     for col in ['EUA_front_maturity_date', 'EUA_benchmark_maturity_date']:
@@ -254,7 +254,7 @@ def process_commodity_front(df, name):
     result_df = result_df.sort_values('trade_date').reset_index(drop=True)
     
     result_df = result_df.set_index('trade_date').sort_index()
-    result_df = result_df.fillna(method='ffill')
+    result_df = result_df.ffill()
     result_df = result_df.reset_index()
     
     for col in result_df.columns:
@@ -480,7 +480,7 @@ def process_volatility_benchmark(df, name):
     result_df = result_df.sort_values('trade_date').reset_index(drop=True)
     
     result_df = result_df.set_index('trade_date').sort_index()
-    result_df = result_df.fillna(method='ffill')
+    result_df = result_df.ffill()
     result_df = result_df.reset_index()
     
     maturity_col = f'{name}_benchmark_maturity_date'
