@@ -4029,7 +4029,7 @@ if __name__ == "__main__":
             return "background-color: lightcoral"
         return ""
 
-    styled_table = forecast_table.style.applymap(color_position, subset=["Position"])
+    styled_table = forecast_table.style.map(color_position, subset=["Position"])
     # display(styled_table)
 
     valid_data = df.dropna(subset=["rolling_mae", "rolling_mpe", "rolling_mse"])
