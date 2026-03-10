@@ -196,9 +196,9 @@ def get_label_market_price(
         # df1['front_month'] = (df1['trade_date'] + pd.DateOffset(months=1)).apply(lambda x: x.replace(day=1))
         # df_filtered = df1.groupby('trade_date').apply(get_first_available).reset_index(drop=True)
         # df_filtered = df_filtered.drop(columns=['front_month'])
-        df_filtered = (
-            df1.groupby("trade_date", group_keys=False).apply(get_first_available2).reset_index(drop=True)
-        )
+        df1["_has_ohlc"] = df1[["open", "high", "low"]].notna().all(axis=1)
+        df1 = df1.sort_values(["trade_date", "_has_ohlc"], ascending=[True, False])
+        df_filtered = df1.drop_duplicates(subset=["trade_date"]).drop(columns=["_has_ohlc"]).reset_index(drop=True)
 
     elif maturity_type == "FY":
         if vdate:
@@ -287,10 +287,9 @@ def get_open_and_volume(
         df1["front_month"] = (df1["trade_date"] + pd.DateOffset(months=1)).apply(
             lambda x: x.replace(day=1)
         )
-        df_filtered = (
-            df1.groupby("trade_date", group_keys=False).apply(get_first_available).reset_index(drop=True)
-        )
-        df_filtered = df_filtered.drop(columns=["front_month"])
+        df1["_matches_front"] = df1["maturity_date"] == df1["front_month"]
+        df1 = df1.sort_values(["trade_date", "_matches_front"], ascending=[True, False])
+        df_filtered = df1.drop_duplicates(subset=["trade_date"]).drop(columns=["front_month", "_matches_front"]).reset_index(drop=True)
     elif maturity_type == "FY":
         df_filtered = df1[
             (df1["maturity_date"].dt.year == df1["trade_date"].dt.year + 1)
