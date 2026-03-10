@@ -197,7 +197,7 @@ def get_label_market_price(
         # df_filtered = df1.groupby('trade_date').apply(get_first_available).reset_index(drop=True)
         # df_filtered = df_filtered.drop(columns=['front_month'])
         df_filtered = (
-            df1.groupby("trade_date").apply(get_first_available2).reset_index(drop=True)
+            df1.groupby("trade_date", group_keys=False).apply(get_first_available2).reset_index(drop=True)
         )
 
     elif maturity_type == "FY":
@@ -288,7 +288,7 @@ def get_open_and_volume(
             lambda x: x.replace(day=1)
         )
         df_filtered = (
-            df1.groupby("trade_date").apply(get_first_available).reset_index(drop=True)
+            df1.groupby("trade_date", group_keys=False).apply(get_first_available).reset_index(drop=True)
         )
         df_filtered = df_filtered.drop(columns=["front_month"])
     elif maturity_type == "FY":
